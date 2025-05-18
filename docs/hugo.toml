@@ -1,7 +1,7 @@
 baseURL = 'https://srix55.github.io/asht/'
 languageCode = 'en-us'
 title = 'Mastering Ashtadhyayi - Docs'
-theme = 'book'
+theme = 'hugo-book'
 [markup]
   [markup.tableOfContents]
     startLevel = 1
@@ -9,3 +9,13 @@ theme = 'book'
 [caches]
   [caches.images]
     dir = ':cacheDir/images'
+    
+enableGitInfo = true    
+    
+[params]
+  # (Optional, default light) Sets color theme: light, dark or auto.
+  # Theme 'auto' switches between dark and light modes based on browser/os preferences
+  BookTheme = 'auto'
+  BookSearch = false
+  BookDateFormat = 'Jan 2, 2006'
+  BookComments = false
