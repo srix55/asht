@@ -1,6 +1,7 @@
 baseURL = 'https://srix55.github.io/asht/'
 languageCode = 'en-us'
 title = 'Mastering Ashtadhyayi - Docs'
+theme = 'book'
 [markup]
   [markup.tableOfContents]
     startLevel = 1
