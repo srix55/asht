@@ -1,0 +1,146 @@
+<!doctype html><html lang=en-us dir=ltr><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='
+  SSE Curl
+  #
+
+Get current-millis
+Note that dev-id is used to track duplicate subscribers
+curl --header "request-id: 1650612377608#0#myDevId#myTaskName#public_api#my-inst-notes" -N http://localhost:8080/v1/subscribe
+
+  Quarkus Multiple Dev Instances
+  #
+
+./gradlew build
+cd signage/signage-server/signage-server-quarkus/build/quarkus-app
+# In separate terminals, do
+java -Dquarkus.http.port=8080 -jar quarkus-run.jar
+java -Dquarkus.http.port=8081 -jar quarkus-run.jar
+java -Dquarkus.http.port=8082 -jar quarkus-run.jar
+java -Dquarkus.http.port=8083 -jar quarkus-run.jar
+
+  RestAssured Template
+  #
+
+@Tag(TestMarker.ENDPOINT_TEST)
+class KeepaliveResourceTest {
+    @Test
+    void getCurrentServerVersion() {
+        given()
+            .baseUri(TestConfig.BASE_URI) // http://localhost:8080
+            .basePath(TestConfig.BASE_PATH) // /v1
+            .header("request-id", signage.entities.utils.tracer.Tracer.fake().getRequestId())
+        .when().get("/keepalive/getCurrentServerVersion")
+            .then()
+            .log().ifValidationFails()
+            .statusCode(200);
+    }
+}
+
+  RestController Template
+  #
+
+@PUT
+@Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
+@Path("/{playerId}/setNameNotes")
+public Response setPlayerNameNotes(@HeaderParam("request-id") String requestId, @PathParam("playerId") String playerId, NameNotes nameNotes) {
+    String tracerValidity = TracerValidator.isRequestIdValid(requestId);
+    if (!tracerValidity.equals(TracerValidator.VALID)) {
+        return Response.status(Response.Status.BAD_REQUEST.getStatusCode(),
+                Response.Status.BAD_REQUEST.getReasonPhrase() + ": " + tracerValidity).build();
+    }
+
+    // TODO Add user id and tenant id
+    Tracer tracer = new Tracer(requestId);
+    tracer.setTenantId("tenant_brwsky");
+    tracer.setUserId("aabuid");
+
+    try {
+        tracer.addTraceStart(TASK_SET_NAME_NOTES);
+        signage.entities.common.NameNotes eNameNotes = new signage.entities.common.NameNotes(nameNotes.getName(), nameNotes.getNotes(),
+                Language.getLanguageByCode(nameNotes.getLanguageCode().getValue()));
+        SetPlayerNameNotesUsecaseFactoryProvider.getFactory().make().setPlayerNameNotes(tracer, playerId, eNameNotes);
+    } catch (InvalidNameNotesException exception) {
+        return ResponseBuilder.build(Response.Status.BAD_REQUEST, exception.getMessage());
+    } catch (UnauthorizedException exception) {
+        return ResponseBuilder.build(Response.Status.UNAUTHORIZED, "You don&#39;t have the necessary permissions to access a player details");
+    } catch (NoSuchPlayerException exception) {
+        return ResponseBuilder.build(Response.Status.NOT_FOUND, "No such player with player-id: " + playerId);
+    } finally {
+        tracer.addTraceEndWithMetric(TASK_SET_NAME_NOTES);
+    }
+    return Response.ok().build();
+}
+'><meta name=theme-color media="(prefers-color-scheme: light)" content="#ffffff"><meta name=theme-color media="(prefers-color-scheme: dark)" content="#343a40"><meta name=color-scheme content="light dark"><meta property="og:url" content="http://localhost:1313/docs/snippets/rest/"><meta property="og:site_name" content="Signage Docs"><meta property="og:title" content="Rest"><meta property="og:description" content='SSE Curl # Get current-millis
+Note that dev-id is used to track duplicate subscribers
+curl --header "request-id: 1650612377608#0#myDevId#myTaskName#public_api#my-inst-notes" -N http://localhost:8080/v1/subscribe Quarkus Multiple Dev Instances # ./gradlew build cd signage/signage-server/signage-server-quarkus/build/quarkus-app # In separate terminals, do java -Dquarkus.http.port=8080 -jar quarkus-run.jar java -Dquarkus.http.port=8081 -jar quarkus-run.jar java -Dquarkus.http.port=8082 -jar quarkus-run.jar java -Dquarkus.http.port=8083 -jar quarkus-run.jar RestAssured Template # @Tag(TestMarker.ENDPOINT_TEST) class KeepaliveResourceTest { @Test void getCurrentServerVersion() { given() .baseUri(TestConfig.BASE_URI) // http://localhost:8080 .basePath(TestConfig.BASE_PATH) // /v1 .header("request-id", signage.entities.utils.tracer.Tracer.fake().getRequestId()) .when().get("/keepalive/getCurrentServerVersion") .then() .log().ifValidationFails() .statusCode(200); } } RestController Template # @PUT @Produces(MediaType.APPLICATION_JSON) @Consumes(MediaType.APPLICATION_JSON) @Path("/{playerId}/setNameNotes") public Response setPlayerNameNotes(@HeaderParam("request-id") String requestId, @PathParam("playerId") String playerId, NameNotes nameNotes) { String tracerValidity = TracerValidator.isRequestIdValid(requestId); if (!tracerValidity.equals(TracerValidator.VALID)) { return Response.status(Response.Status.BAD_REQUEST.getStatusCode(), Response.Status.BAD_REQUEST.getReasonPhrase() + ": " + tracerValidity).build(); } // TODO Add user id and tenant id Tracer tracer = new Tracer(requestId); tracer.setTenantId("tenant_brwsky"); tracer.setUserId("aabuid"); try { tracer.addTraceStart(TASK_SET_NAME_NOTES); signage.entities.common.NameNotes eNameNotes = new signage.entities.common.NameNotes(nameNotes.getName(), nameNotes.getNotes(), Language.getLanguageByCode(nameNotes.getLanguageCode().getValue())); SetPlayerNameNotesUsecaseFactoryProvider.getFactory().make().setPlayerNameNotes(tracer, playerId, eNameNotes); } catch (InvalidNameNotesException exception) { return ResponseBuilder.build(Response.Status.BAD_REQUEST, exception.getMessage()); } catch (UnauthorizedException exception) { return ResponseBuilder.build(Response.Status.UNAUTHORIZED, "You don&#39;t have the necessary permissions to access a player details"); } catch (NoSuchPlayerException exception) { return ResponseBuilder.build(Response.Status.NOT_FOUND, "No such player with player-id: " + playerId); } finally { tracer.addTraceEndWithMetric(TASK_SET_NAME_NOTES); } return Response.ok().build(); }'><meta property="og:locale" content="en_us"><meta property="og:type" content="website"><title>Rest | Signage Docs</title><link rel=icon href=/favicon.png><link rel=manifest href=/manifest.json><link rel=canonical href=http://localhost:1313/docs/snippets/rest/><link rel=stylesheet href=/book.min.a7616cf2799b58bddffce9438e31fdbfc6393687cfc0950a4a17cd1cce7e35f6.css integrity="sha256-p2Fs8nmbWL3f/OlDjjH9v8Y5NofPwJUKShfNHM5+NfY=" crossorigin=anonymous><script defer src=/fuse.min.js></script><script defer src=/en.search.min.8055c20c11bab2948f35a214cd3b34d0049bc9809df8d235cf0b2e0a5e3b3140.js integrity="sha256-gFXCDBG6spSPNaIUzTs00ASbyYCd+NI1zwsuCl47MUA=" crossorigin=anonymous></script><link rel=alternate type=application/rss+xml href=http://localhost:1313/docs/snippets/rest/index.xml title="Signage Docs"></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><div class=book-menu-content><nav><h2 class=book-brand><a class="flex align-center" href=/><span>Signage Docs</span></a></h2><div class="book-search hidden"><input type=text id=book-search-input placeholder=Search aria-label=Search maxlength=64 data-hotkeys=s/><div class="book-search-spinner hidden"></div><ul id=book-search-results></ul></div><script>document.querySelector(".book-search").classList.remove("hidden")</script><ul><li><input type=checkbox id=section-5fdf93cd314ec47df39ee998b89605b2 class=toggle>
+<label for=section-5fdf93cd314ec47df39ee998b89605b2 class="flex justify-between"><a href=/docs/caching/>Caching</a></label><ul><li><a href=/docs/caching/strategy/>Strategy</a><ul></ul></li><li><a href=/docs/caching/data-structures/>Data Structures</a><ul></ul></li><li><a href=/docs/caching/scenarios/>Scenarios</a><ul></ul></li></ul></li><li><input type=checkbox id=section-4e5caaf6365b6353a122fd9e35c00b08 class=toggle>
+<label for=section-4e5caaf6365b6353a122fd9e35c00b08 class="flex justify-between"><a href=/docs/dev/>Dev</a></label><ul><li><input type=checkbox id=section-93509623b841973ade448228f6a7245a class=toggle>
+<label for=section-93509623b841973ade448228f6a7245a class="flex justify-between"><a href=/docs/dev/checklists/>Checklists</a></label><ul><li><input type=checkbox id=section-cd85b26f7f821c87127cc7c5ab2be114 class=toggle>
+<label for=section-cd85b26f7f821c87127cc7c5ab2be114 class="flex justify-between"><a href=/docs/dev/checklists/flutter_ui/>Flutter UI</a></label><ul></ul></li></ul></li><li><input type=checkbox id=section-342701e3704fa08e1bf5178f22301bff class=toggle>
+<label for=section-342701e3704fa08e1bf5178f22301bff class="flex justify-between"><a href=/docs/dev/gcp/>GCP Deploy</a></label><ul></ul></li><li><input type=checkbox id=section-62f6752f338b4e8972e68d919e388f1b class=toggle>
+<label for=section-62f6752f338b4e8972e68d919e388f1b class="flex justify-between"><a href=/docs/dev/setup/>Local Setup</a></label><ul></ul></li><li><input type=checkbox id=section-8a7fd608f954780ffa4e272058ad1f8f class=toggle>
+<label for=section-8a7fd608f954780ffa4e272058ad1f8f class="flex justify-between"><a href=/docs/dev/setup_fedora/>Local Setup (Fedora)</a></label><ul></ul></li><li><input type=checkbox id=section-a4a95fe5b98a6ee596e16de8c518475a class=toggle>
+<label for=section-a4a95fe5b98a6ee596e16de8c518475a class="flex justify-between"><a href=/docs/dev/mac/>Mac</a></label><ul></ul></li></ul></li><li><input type=checkbox id=section-20d497b48986a632cbad2fbd9940c776 class=toggle>
+<label for=section-20d497b48986a632cbad2fbd9940c776 class="flex justify-between"><a href=/docs/manual/>Dev Manual</a></label><ul></ul></li><li><input type=checkbox id=section-2f9d02b5146d32013b75800d20839f0c class=toggle>
+<label for=section-2f9d02b5146d32013b75800d20839f0c class="flex justify-between"><a href=/docs/player_registration/>Player Registration</a></label><ul></ul></li><li><input type=checkbox id=section-401ec0f4fea4e1b33d16a959f93c7b54 class=toggle>
+<label for=section-401ec0f4fea4e1b33d16a959f93c7b54 class="flex justify-between"><a href=/docs/cheats/>Cheats</a></label><ul><li><a href=/docs/cheats/http/>Http</a><ul></ul></li></ul></li><li><input type=checkbox id=section-b439b1f12afb2bdb787d45ce1eefc920 class=toggle checked>
+<label for=section-b439b1f12afb2bdb787d45ce1eefc920 class="flex justify-between"><a href=/docs/snippets/>Snippets</a></label><ul><li><a href=/docs/snippets/jpa/>JPA</a><ul></ul></li><li><a href=/docs/snippets/rest/ class=active>Rest</a><ul></ul></li><li><a href=/docs/snippets/dart/>Dart</a><ul></ul></li></ul></li></ul><ul><li><a href=/posts/>Blog</a></li></ul></nav><script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script></div></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/svg/menu.svg class=book-icon alt=Menu></label><h3>Rest</h3><label for=toc-control><img src=/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><ul><li><a href=#sse-curl>SSE Curl</a></li><li><a href=#quarkus-multiple-dev-instances>Quarkus Multiple Dev Instances</a></li><li><a href=#restassured-template>RestAssured Template</a></li><li><a href=#restcontroller-template>RestController Template</a></li></ul></li></ul></nav></aside></header><article class="markdown book-article"><h2 id=sse-curl>SSE Curl
+<a class=anchor href=#sse-curl>#</a></h2><p>Get <a href=https://currentmillis.com/>current-millis</a><br>Note that <code>dev-id</code> is used to track duplicate subscribers</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>curl --header <span style=color:#e6db74>&#34;request-id: 1650612377608#0#myDevId#myTaskName#public_api#my-inst-notes&#34;</span> -N http://localhost:8080/v1/subscribe
+</span></span></code></pre></div><h2 id=quarkus-multiple-dev-instances>Quarkus Multiple Dev Instances
+<a class=anchor href=#quarkus-multiple-dev-instances>#</a></h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>./gradlew build
+</span></span><span style=display:flex><span>cd signage/signage-server/signage-server-quarkus/build/quarkus-app
+</span></span><span style=display:flex><span><span style=color:#75715e># In separate terminals, do</span>
+</span></span><span style=display:flex><span>java -Dquarkus.http.port<span style=color:#f92672>=</span><span style=color:#ae81ff>8080</span> -jar quarkus-run.jar
+</span></span><span style=display:flex><span>java -Dquarkus.http.port<span style=color:#f92672>=</span><span style=color:#ae81ff>8081</span> -jar quarkus-run.jar
+</span></span><span style=display:flex><span>java -Dquarkus.http.port<span style=color:#f92672>=</span><span style=color:#ae81ff>8082</span> -jar quarkus-run.jar
+</span></span><span style=display:flex><span>java -Dquarkus.http.port<span style=color:#f92672>=</span><span style=color:#ae81ff>8083</span> -jar quarkus-run.jar
+</span></span></code></pre></div><h2 id=restassured-template>RestAssured Template
+<a class=anchor href=#restassured-template>#</a></h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@Tag</span>(TestMarker.<span style=color:#a6e22e>ENDPOINT_TEST</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>class</span> <span style=color:#a6e22e>KeepaliveResourceTest</span> {
+</span></span><span style=display:flex><span>    <span style=color:#a6e22e>@Test</span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>void</span> <span style=color:#a6e22e>getCurrentServerVersion</span>() {
+</span></span><span style=display:flex><span>        given()
+</span></span><span style=display:flex><span>            .<span style=color:#a6e22e>baseUri</span>(TestConfig.<span style=color:#a6e22e>BASE_URI</span>) <span style=color:#75715e>// http://localhost:8080</span>
+</span></span><span style=display:flex><span>            .<span style=color:#a6e22e>basePath</span>(TestConfig.<span style=color:#a6e22e>BASE_PATH</span>) <span style=color:#75715e>// /v1</span>
+</span></span><span style=display:flex><span>            .<span style=color:#a6e22e>header</span>(<span style=color:#e6db74>&#34;request-id&#34;</span>, signage.<span style=color:#a6e22e>entities</span>.<span style=color:#a6e22e>utils</span>.<span style=color:#a6e22e>tracer</span>.<span style=color:#a6e22e>Tracer</span>.<span style=color:#a6e22e>fake</span>().<span style=color:#a6e22e>getRequestId</span>())
+</span></span><span style=display:flex><span>        .<span style=color:#a6e22e>when</span>().<span style=color:#a6e22e>get</span>(<span style=color:#e6db74>&#34;/keepalive/getCurrentServerVersion&#34;</span>)
+</span></span><span style=display:flex><span>            .<span style=color:#a6e22e>then</span>()
+</span></span><span style=display:flex><span>            .<span style=color:#a6e22e>log</span>().<span style=color:#a6e22e>ifValidationFails</span>()
+</span></span><span style=display:flex><span>            .<span style=color:#a6e22e>statusCode</span>(200);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div><h2 id=restcontroller-template>RestController Template
+<a class=anchor href=#restcontroller-template>#</a></h2><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-java data-lang=java><span style=display:flex><span><span style=color:#a6e22e>@PUT</span>
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Produces</span>(MediaType.<span style=color:#a6e22e>APPLICATION_JSON</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Consumes</span>(MediaType.<span style=color:#a6e22e>APPLICATION_JSON</span>)
+</span></span><span style=display:flex><span><span style=color:#a6e22e>@Path</span>(<span style=color:#e6db74>&#34;/{playerId}/setNameNotes&#34;</span>)
+</span></span><span style=display:flex><span><span style=color:#66d9ef>public</span> Response <span style=color:#a6e22e>setPlayerNameNotes</span>(<span style=color:#a6e22e>@HeaderParam</span>(<span style=color:#e6db74>&#34;request-id&#34;</span>) String requestId, <span style=color:#a6e22e>@PathParam</span>(<span style=color:#e6db74>&#34;playerId&#34;</span>) String playerId, NameNotes nameNotes) {
+</span></span><span style=display:flex><span>    String tracerValidity <span style=color:#f92672>=</span> TracerValidator.<span style=color:#a6e22e>isRequestIdValid</span>(requestId);
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>if</span> (<span style=color:#f92672>!</span>tracerValidity.<span style=color:#a6e22e>equals</span>(TracerValidator.<span style=color:#a6e22e>VALID</span>)) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> Response.<span style=color:#a6e22e>status</span>(Response.<span style=color:#a6e22e>Status</span>.<span style=color:#a6e22e>BAD_REQUEST</span>.<span style=color:#a6e22e>getStatusCode</span>(),
+</span></span><span style=display:flex><span>                Response.<span style=color:#a6e22e>Status</span>.<span style=color:#a6e22e>BAD_REQUEST</span>.<span style=color:#a6e22e>getReasonPhrase</span>() <span style=color:#f92672>+</span> <span style=color:#e6db74>&#34;: &#34;</span> <span style=color:#f92672>+</span> tracerValidity).<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#75715e>// TODO Add user id and tenant id</span>
+</span></span><span style=display:flex><span>    Tracer tracer <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> Tracer(requestId);
+</span></span><span style=display:flex><span>    tracer.<span style=color:#a6e22e>setTenantId</span>(<span style=color:#e6db74>&#34;tenant_brwsky&#34;</span>);
+</span></span><span style=display:flex><span>    tracer.<span style=color:#a6e22e>setUserId</span>(<span style=color:#e6db74>&#34;aabuid&#34;</span>);
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>try</span> {
+</span></span><span style=display:flex><span>        tracer.<span style=color:#a6e22e>addTraceStart</span>(TASK_SET_NAME_NOTES);
+</span></span><span style=display:flex><span>        signage.<span style=color:#a6e22e>entities</span>.<span style=color:#a6e22e>common</span>.<span style=color:#a6e22e>NameNotes</span> eNameNotes <span style=color:#f92672>=</span> <span style=color:#66d9ef>new</span> signage.<span style=color:#a6e22e>entities</span>.<span style=color:#a6e22e>common</span>.<span style=color:#a6e22e>NameNotes</span>(nameNotes.<span style=color:#a6e22e>getName</span>(), nameNotes.<span style=color:#a6e22e>getNotes</span>(),
+</span></span><span style=display:flex><span>                Language.<span style=color:#a6e22e>getLanguageByCode</span>(nameNotes.<span style=color:#a6e22e>getLanguageCode</span>().<span style=color:#a6e22e>getValue</span>()));
+</span></span><span style=display:flex><span>        SetPlayerNameNotesUsecaseFactoryProvider.<span style=color:#a6e22e>getFactory</span>().<span style=color:#a6e22e>make</span>().<span style=color:#a6e22e>setPlayerNameNotes</span>(tracer, playerId, eNameNotes);
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>catch</span> (InvalidNameNotesException exception) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ResponseBuilder.<span style=color:#a6e22e>build</span>(Response.<span style=color:#a6e22e>Status</span>.<span style=color:#a6e22e>BAD_REQUEST</span>, exception.<span style=color:#a6e22e>getMessage</span>());
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>catch</span> (UnauthorizedException exception) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ResponseBuilder.<span style=color:#a6e22e>build</span>(Response.<span style=color:#a6e22e>Status</span>.<span style=color:#a6e22e>UNAUTHORIZED</span>, <span style=color:#e6db74>&#34;You don&#39;t have the necessary permissions to access a player details&#34;</span>);
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>catch</span> (NoSuchPlayerException exception) {
+</span></span><span style=display:flex><span>        <span style=color:#66d9ef>return</span> ResponseBuilder.<span style=color:#a6e22e>build</span>(Response.<span style=color:#a6e22e>Status</span>.<span style=color:#a6e22e>NOT_FOUND</span>, <span style=color:#e6db74>&#34;No such player with player-id: &#34;</span> <span style=color:#f92672>+</span> playerId);
+</span></span><span style=display:flex><span>    } <span style=color:#66d9ef>finally</span> {
+</span></span><span style=display:flex><span>        tracer.<span style=color:#a6e22e>addTraceEndWithMetric</span>(TASK_SET_NAME_NOTES);
+</span></span><span style=display:flex><span>    }
+</span></span><span style=display:flex><span>    <span style=color:#66d9ef>return</span> Response.<span style=color:#a6e22e>ok</span>().<span style=color:#a6e22e>build</span>();
+</span></span><span style=display:flex><span>}
+</span></span></code></pre></div></article><footer class=book-footer><div class="flex flex-wrap justify-between"></div><script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script></footer><div class=book-comments></div><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><div class=book-toc-content><nav id=TableOfContents><ul><li><ul><li><a href=#sse-curl>SSE Curl</a></li><li><a href=#quarkus-multiple-dev-instances>Quarkus Multiple Dev Instances</a></li><li><a href=#restassured-template>RestAssured Template</a></li><li><a href=#restcontroller-template>RestController Template</a></li></ul></li></ul></nav></div></aside></main></body></html>

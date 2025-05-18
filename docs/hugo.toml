@@ -1,0 +1,10 @@
+baseURL = 'https://srix55.github.io/asht/'
+languageCode = 'en-us'
+title = 'Mastering Ashtadhyayi - Docs'
+[markup]
+  [markup.tableOfContents]
+    startLevel = 1
+    endLevel = 3
+[caches]
+  [caches.images]
+    dir = ':cacheDir/images'

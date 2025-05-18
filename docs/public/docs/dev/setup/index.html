@@ -1,0 +1,89 @@
+<!doctype html><html lang=en-us dir=ltr><head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset=UTF-8><meta name=viewport content="width=device-width,initial-scale=1"><meta name=description content='
+  Install Flutter
+  #
+
+
+Install flutter and check flutter doctor
+Install Idea & Android Studio with flutter & dart plugins
+sudo apt install libstdc++-12-dev
+
+
+  Other Dependencies
+  #
+
+
+sudo apt-get install -y postgresql-client or if on Fedora sudo dnf install postgresql
+sudo dnf install nodejs (fedora)
+
+
+  Prepare database & redis images
+  #
+
+
+Install git & login to bitbucket to clone signage & tuxkit projects
+git config --global user.email "srix55@gmail.com"
+git config --global user.name "Srikanth Venkatesh"
+sudo apt install podman buildah
+cd ~/Devspace/espace/signage/devops/database
+./generate-dockerfile.sh -t dev-1.0 & follow the instructions to run signagedb container
+podman run -p 6379:6379 --name redis docker.io/library/redis
+
+
+  Prepare the server
+  #
+
+
+Install sdkman (curl -s "https://get.sdkman.io" | bash) & install java (sdk install java) & gradle (sdk install gradle)
+Cd into signage-server and run gradle wrapper
+sudo npm i -g @redocly/cli@latest
+cd ~/Devspace/espace/signage/signage-server/api/openapi && openapi lint specs/openapi.yaml && openapi bundle --output dist/openapi.yaml specs/openapi.yaml && cd ../.. && ./gradlew build -x test
+
+
+  Prepare the client
+  #
+
+
+sudo apt install libstdc++-12-dev or sudo dnf install gcc libstdc++-devel
+sudo apt install libmpv-dev mpv or sudo dnf install mpv mpv-devel
+sudo apt install libsqlite3-dev or sudo dnf install sqlite sqlite-devel
+
+
+  Run
+  #
+
+
+podman start signagedb redis
+cd ~/Devspace/espace/signage/signage-server && ./gradlew :signage-server-quarkus:quarkusDev
+Set config.dart installationType to desktop_lin
+Check api address in rest_client/api.dart
+cd ~/Devspace/espace/signage/client/admin/signage && flutter run -d linux
+
+
+  Google Cloud
+  #
+
+
+Install gcloud & do gcloud init to set defaults
+Check out devops/webserver/build_deploy_webserver.sh
+'><meta name=theme-color media="(prefers-color-scheme: light)" content="#ffffff"><meta name=theme-color media="(prefers-color-scheme: dark)" content="#343a40"><meta name=color-scheme content="light dark"><meta property="og:url" content="http://localhost:1313/docs/dev/setup/"><meta property="og:site_name" content="Signage Docs"><meta property="og:title" content="Local Setup"><meta property="og:description" content='Install Flutter # Install flutter and check flutter doctor Install Idea & Android Studio with flutter & dart plugins sudo apt install libstdc++-12-dev Other Dependencies # sudo apt-get install -y postgresql-client or if on Fedora sudo dnf install postgresql sudo dnf install nodejs (fedora) Prepare database & redis images # Install git & login to bitbucket to clone signage & tuxkit projects git config --global user.email "srix55@gmail.com" git config --global user.name "Srikanth Venkatesh" sudo apt install podman buildah cd ~/Devspace/espace/signage/devops/database ./generate-dockerfile.sh -t dev-1.0 & follow the instructions to run signagedb container podman run -p 6379:6379 --name redis docker.io/library/redis Prepare the server # Install sdkman (curl -s "https://get.sdkman.io" | bash) & install java (sdk install java) & gradle (sdk install gradle) Cd into signage-server and run gradle wrapper sudo npm i -g @redocly/cli@latest cd ~/Devspace/espace/signage/signage-server/api/openapi && openapi lint specs/openapi.yaml && openapi bundle --output dist/openapi.yaml specs/openapi.yaml && cd ../.. && ./gradlew build -x test Prepare the client # sudo apt install libstdc++-12-dev or sudo dnf install gcc libstdc++-devel sudo apt install libmpv-dev mpv or sudo dnf install mpv mpv-devel sudo apt install libsqlite3-dev or sudo dnf install sqlite sqlite-devel Run # podman start signagedb redis cd ~/Devspace/espace/signage/signage-server && ./gradlew :signage-server-quarkus:quarkusDev Set config.dart installationType to desktop_lin Check api address in rest_client/api.dart cd ~/Devspace/espace/signage/client/admin/signage && flutter run -d linux Google Cloud # Install gcloud & do gcloud init to set defaults Check out devops/webserver/build_deploy_webserver.sh'><meta property="og:locale" content="en_us"><meta property="og:type" content="website"><title>Local Setup | Signage Docs</title><link rel=icon href=/favicon.png><link rel=manifest href=/manifest.json><link rel=canonical href=http://localhost:1313/docs/dev/setup/><link rel=stylesheet href=/book.min.a7616cf2799b58bddffce9438e31fdbfc6393687cfc0950a4a17cd1cce7e35f6.css integrity="sha256-p2Fs8nmbWL3f/OlDjjH9v8Y5NofPwJUKShfNHM5+NfY=" crossorigin=anonymous><script defer src=/fuse.min.js></script><script defer src=/en.search.min.8055c20c11bab2948f35a214cd3b34d0049bc9809df8d235cf0b2e0a5e3b3140.js integrity="sha256-gFXCDBG6spSPNaIUzTs00ASbyYCd+NI1zwsuCl47MUA=" crossorigin=anonymous></script><link rel=alternate type=application/rss+xml href=http://localhost:1313/docs/dev/setup/index.xml title="Signage Docs"></head><body dir=ltr><input type=checkbox class="hidden toggle" id=menu-control>
+<input type=checkbox class="hidden toggle" id=toc-control><main class="container flex"><aside class=book-menu><div class=book-menu-content><nav><h2 class=book-brand><a class="flex align-center" href=/><span>Signage Docs</span></a></h2><div class="book-search hidden"><input type=text id=book-search-input placeholder=Search aria-label=Search maxlength=64 data-hotkeys=s/><div class="book-search-spinner hidden"></div><ul id=book-search-results></ul></div><script>document.querySelector(".book-search").classList.remove("hidden")</script><ul><li><input type=checkbox id=section-5fdf93cd314ec47df39ee998b89605b2 class=toggle>
+<label for=section-5fdf93cd314ec47df39ee998b89605b2 class="flex justify-between"><a href=/docs/caching/>Caching</a></label><ul><li><a href=/docs/caching/strategy/>Strategy</a><ul></ul></li><li><a href=/docs/caching/data-structures/>Data Structures</a><ul></ul></li><li><a href=/docs/caching/scenarios/>Scenarios</a><ul></ul></li></ul></li><li><input type=checkbox id=section-4e5caaf6365b6353a122fd9e35c00b08 class=toggle checked>
+<label for=section-4e5caaf6365b6353a122fd9e35c00b08 class="flex justify-between"><a href=/docs/dev/>Dev</a></label><ul><li><input type=checkbox id=section-93509623b841973ade448228f6a7245a class=toggle>
+<label for=section-93509623b841973ade448228f6a7245a class="flex justify-between"><a href=/docs/dev/checklists/>Checklists</a></label><ul><li><input type=checkbox id=section-cd85b26f7f821c87127cc7c5ab2be114 class=toggle>
+<label for=section-cd85b26f7f821c87127cc7c5ab2be114 class="flex justify-between"><a href=/docs/dev/checklists/flutter_ui/>Flutter UI</a></label><ul></ul></li></ul></li><li><input type=checkbox id=section-342701e3704fa08e1bf5178f22301bff class=toggle>
+<label for=section-342701e3704fa08e1bf5178f22301bff class="flex justify-between"><a href=/docs/dev/gcp/>GCP Deploy</a></label><ul></ul></li><li><input type=checkbox id=section-62f6752f338b4e8972e68d919e388f1b class=toggle checked>
+<label for=section-62f6752f338b4e8972e68d919e388f1b class="flex justify-between"><a href=/docs/dev/setup/ class=active>Local Setup</a></label><ul></ul></li><li><input type=checkbox id=section-8a7fd608f954780ffa4e272058ad1f8f class=toggle>
+<label for=section-8a7fd608f954780ffa4e272058ad1f8f class="flex justify-between"><a href=/docs/dev/setup_fedora/>Local Setup (Fedora)</a></label><ul></ul></li><li><input type=checkbox id=section-a4a95fe5b98a6ee596e16de8c518475a class=toggle>
+<label for=section-a4a95fe5b98a6ee596e16de8c518475a class="flex justify-between"><a href=/docs/dev/mac/>Mac</a></label><ul></ul></li></ul></li><li><input type=checkbox id=section-20d497b48986a632cbad2fbd9940c776 class=toggle>
+<label for=section-20d497b48986a632cbad2fbd9940c776 class="flex justify-between"><a href=/docs/manual/>Dev Manual</a></label><ul></ul></li><li><input type=checkbox id=section-2f9d02b5146d32013b75800d20839f0c class=toggle>
+<label for=section-2f9d02b5146d32013b75800d20839f0c class="flex justify-between"><a href=/docs/player_registration/>Player Registration</a></label><ul></ul></li><li><input type=checkbox id=section-401ec0f4fea4e1b33d16a959f93c7b54 class=toggle>
+<label for=section-401ec0f4fea4e1b33d16a959f93c7b54 class="flex justify-between"><a href=/docs/cheats/>Cheats</a></label><ul><li><a href=/docs/cheats/http/>Http</a><ul></ul></li></ul></li><li><input type=checkbox id=section-b439b1f12afb2bdb787d45ce1eefc920 class=toggle>
+<label for=section-b439b1f12afb2bdb787d45ce1eefc920 class="flex justify-between"><a href=/docs/snippets/>Snippets</a></label><ul><li><a href=/docs/snippets/jpa/>JPA</a><ul></ul></li><li><a href=/docs/snippets/rest/>Rest</a><ul></ul></li><li><a href=/docs/snippets/dart/>Dart</a><ul></ul></li></ul></li></ul><ul><li><a href=/posts/>Blog</a></li></ul></nav><script>(function(){var e=document.querySelector("aside .book-menu-content");addEventListener("beforeunload",function(){localStorage.setItem("menu.scrollTop",e.scrollTop)}),e.scrollTop=localStorage.getItem("menu.scrollTop")})()</script></div></aside><div class=book-page><header class=book-header><div class="flex align-center justify-between"><label for=menu-control><img src=/svg/menu.svg class=book-icon alt=Menu></label><h3>Local Setup</h3><label for=toc-control><img src=/svg/toc.svg class=book-icon alt="Table of Contents"></label></div><aside class="hidden clearfix"><nav id=TableOfContents><ul><li><ul><li><a href=#install-flutter>Install Flutter</a></li><li><a href=#other-dependencies>Other Dependencies</a></li><li><a href=#prepare-database--redis-images>Prepare database & redis images</a></li><li><a href=#prepare-the-server>Prepare the server</a></li><li><a href=#prepare-the-client>Prepare the client</a></li><li><a href=#run>Run</a></li><li><a href=#google-cloud>Google Cloud</a></li></ul></li></ul></nav></aside></header><article class="markdown book-article"><h2 id=install-flutter>Install Flutter
+<a class=anchor href=#install-flutter>#</a></h2><ul><li>Install flutter and check flutter doctor</li><li>Install Idea & Android Studio with flutter & dart plugins</li><li><code>sudo apt install libstdc++-12-dev</code></li></ul><h2 id=other-dependencies>Other Dependencies
+<a class=anchor href=#other-dependencies>#</a></h2><ul><li><code>sudo apt-get install -y postgresql-client</code> or if on Fedora <code>sudo dnf install postgresql</code></li><li><code>sudo dnf install nodejs</code> (fedora)</li></ul><h2 id=prepare-database--redis-images>Prepare database & redis images
+<a class=anchor href=#prepare-database--redis-images>#</a></h2><ul><li>Install git & login to bitbucket to clone signage & tuxkit projects</li><li><code>git config --global user.email "srix55@gmail.com"</code>
+<code>git config --global user.name "Srikanth Venkatesh"</code></li><li><code>sudo apt install podman buildah</code></li><li><code>cd ~/Devspace/espace/signage/devops/database</code></li><li><code>./generate-dockerfile.sh -t dev-1.0</code> & follow the instructions to run signagedb container</li><li><code>podman run -p 6379:6379 --name redis docker.io/library/redis</code></li></ul><h2 id=prepare-the-server>Prepare the server
+<a class=anchor href=#prepare-the-server>#</a></h2><ul><li>Install sdkman (<code>curl -s "https://get.sdkman.io" | bash</code>) & install java (<code>sdk install java</code>) & gradle (<code>sdk install gradle</code>)</li><li>Cd into signage-server and run <code>gradle wrapper</code></li><li><code>sudo npm i -g @redocly/cli@latest</code></li><li><code>cd ~/Devspace/espace/signage/signage-server/api/openapi && openapi lint specs/openapi.yaml && openapi bundle --output dist/openapi.yaml specs/openapi.yaml && cd ../.. && ./gradlew build -x test</code></li></ul><h2 id=prepare-the-client>Prepare the client
+<a class=anchor href=#prepare-the-client>#</a></h2><ul><li><code>sudo apt install libstdc++-12-dev</code> or <code>sudo dnf install gcc libstdc++-devel</code></li><li><code>sudo apt install libmpv-dev mpv</code> or <code>sudo dnf install mpv mpv-devel</code></li><li><code>sudo apt install libsqlite3-dev</code> or <code>sudo dnf install sqlite sqlite-devel</code></li></ul><h2 id=run>Run
+<a class=anchor href=#run>#</a></h2><ul><li><code>podman start signagedb redis</code></li><li><code>cd ~/Devspace/espace/signage/signage-server && ./gradlew :signage-server-quarkus:quarkusDev</code></li><li>Set config.dart installationType to desktop_lin</li><li>Check api address in rest_client/api.dart</li><li><code>cd ~/Devspace/espace/signage/client/admin/signage && flutter run -d linux</code></li></ul><h2 id=google-cloud>Google Cloud
+<a class=anchor href=#google-cloud>#</a></h2><ul><li>Install <a href=https://cloud.google.com/sdk/docs/install#deb>gcloud</a> & do <code>gcloud init</code> to set defaults</li><li>Check out <code>devops/webserver/build_deploy_webserver.sh</code></li></ul></article><footer class=book-footer><div class="flex flex-wrap justify-between"></div><script>(function(){function e(e){const t=window.getSelection(),n=document.createRange();n.selectNodeContents(e),t.removeAllRanges(),t.addRange(n)}document.querySelectorAll("pre code").forEach(t=>{t.addEventListener("click",function(){if(window.getSelection().toString())return;e(t.parentElement),navigator.clipboard&&navigator.clipboard.writeText(t.parentElement.textContent)})})})()</script></footer><div class=book-comments></div><label for=menu-control class="hidden book-menu-overlay"></label></div><aside class=book-toc><div class=book-toc-content><nav id=TableOfContents><ul><li><ul><li><a href=#install-flutter>Install Flutter</a></li><li><a href=#other-dependencies>Other Dependencies</a></li><li><a href=#prepare-database--redis-images>Prepare database & redis images</a></li><li><a href=#prepare-the-server>Prepare the server</a></li><li><a href=#prepare-the-client>Prepare the client</a></li><li><a href=#run>Run</a></li><li><a href=#google-cloud>Google Cloud</a></li></ul></li></ul></nav></div></aside></main></body></html>
